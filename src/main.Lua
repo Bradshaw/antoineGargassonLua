@@ -131,6 +131,14 @@ function clearBullets()
 	end
 end
 
+function clearEnnemies()
+	if #ennemies > 0 then
+		for i = #ennemies, 1, -1 do
+			table.remove(ennemies, i)
+		end
+	end
+end
+
 function checkBullets()
 	if #bullets > 0 then
 		for i = #bullets, 1, -1 do
@@ -183,6 +191,7 @@ function love.generate()
 	_L = Level.new()
 	_L:generate()
 	clearBullets()
+	clearEnnemies()
 	for i = 1, #players do
 		_L:placePlayer(players[i])
 		players[i].life = 100
