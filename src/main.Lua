@@ -12,13 +12,45 @@ end
 function love.update(dt)
 	if #players > 0 then
 		for i = 1, #players do
-			if _P.isInAir then
-				if _L:findCollision(_P.x, math.ceil(_P.y + dt * _P.gravity)) then
-
-				else
-					_P.y = _P.y + dt * _P.gravity
+			if love.timer.getTime() - players[i].lastMovement  > players[i].speed then
+				if (players[i].joystick:getGamepadAxis("lefty") > 0.5 ) then
+					players[i].y = math.floor(players[i].y + 1)
+				elseif players[i].joystick:getGamepadAxis("lefty") < -0.5 then
+					players[i].y = math.floor(players[i].y - 1)
 				end
+				if (players[i].joystick:getGamepadAxis("leftx") > 0.5 ) then
+					players[i].x = math.floor(players[i].x + 1)
+				elseif players[i].joystick:getGamepadAxis("leftx") < -0.5 then
+					players[i].x = math.floor(players[i].x - 1)
+				end
+				players[i].lastMovement = love.timer.getTime()
+			end
 
+			if (players[i].joystick:isGamepadDown('a') ) then
+				
+			end
+		end
+	end
+
+	checkPlayers()
+
+	if love.timer.getTime() - _L.lastMove > _L.defilement then
+		_L:moveBackground()
+		checkPlayers()
+		_L.lastMove = love.timer.getTime()
+	end
+
+end
+
+function round(n)
+    return n % 1 >= 0.5 and math.ceil(n) or math.floor(n)
+end
+
+function checkPlayers()
+	if #players > 0 then
+		for i = 1, #players do
+			if _L:getTile(math.floor(players[i].x),math.floor(players[i].y)).id ~= Tile.id.sky and _L:getTile(math.floor(players[i].x),math.floor(players[i].y)).id ~= Tile.id.bonus then
+				print("perdu")
 			end
 		end
 	end
@@ -35,7 +67,7 @@ function love.draw()
 				love.graphics.setColor(0, 176, 0)
 			elseif _L:getTile(i,j).id == Tile.id.ground then
 				love.graphics.setColor(128, 64, 0)
-			elseif _L:getTile(i,j).id == Tile.id.trap then
+			elseif _L:getTile(i,j).id == Tile.id.bonus then
 				love.graphics.setColor(255, 0, 0)
 			elseif _L:getTile(i,j).id == Tile.id.flag then
 				love.graphics.setColor(255, 100, 150)
@@ -55,7 +87,10 @@ function love.generate()
 	_L = Level.new()
 	_L:generate()
 	_L:placeFlag()
-	
+	for i = 1, #players do
+		_L:placePlayer(players[i])
+	end
+	_L.lastMove = love.timer.getTime()
 end
 
 function love.keypressed(key)
@@ -66,12 +101,12 @@ function love.keypressed(key)
 	end
 end
 
-function love.joystickpressed( joystick, button )
-	print("pressed")
+function love.joystickpressed(joystick, button )
 	if not findPlayer(joystick) then
-		_P = Player.new()
+		local _P = Player.new(joystick)
 		_P.img = love.graphics.newImage("images/cube.png")
 		_L:placePlayer(_P)
+		table.insert(players, _P)
 	end
 end
 

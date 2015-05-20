@@ -1,7 +1,7 @@
 local Tile_mt = {}
 local Tile = {}
 
-Tile.id = {floor = 0, grass = 1, ground = 2, sky = 3, trap = 4, flag = 5}
+Tile.id = {floor = 0, grass = 1, ground = 2, sky = 3, bonus = 4, flag = 5}
 Tile.size = 32
 
 function Tile.new( id )

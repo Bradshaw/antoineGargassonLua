@@ -7,9 +7,9 @@ function Player.new(joystick)
 	self.x = 1
 	self.y = 5
 	self.life = 2
-	self.speed = 10
-	self.isInAir = true
-	self.gravity = 5
+	self.speed = 0.05
+
+	self.lastMovement = 0;
 
 	self.joystick = joystick
 
