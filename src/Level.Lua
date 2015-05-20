@@ -13,7 +13,9 @@ function Level.new(options)
 	self.h = self.ysize * 2 +1
 
 	self.lastMove = 0
-	self.defilement = 0.1
+	self.lastSpawn = 0
+	self.defilement = 0.5
+	self.speedSpawn = 2
 
 	self:createBase()
 
@@ -59,12 +61,12 @@ function Level_mt:moveBackground()
 	--milieu terre -- 
 
 	for j=1, self.h do
-		if self:getTile(self.w, j-1).id == Tile.id.ground and self:getTile(self.w, j).id == Tile.id.sky and self:getTile(self.w, j+3).id == Tile.id.sky then
+		if self:getTile(self.w, j-1).id == Tile.id.ground and self:getTile(self.w, j).id == Tile.id.sky and self:getTile(self.w, j+3).id == Tile.id.sky and j < 9 then
 			rand = math.floor(math.random()*3)
 			if rand < 2 then
 				self:setTile(self.w, j, Tile.new(Tile.id.ground))
 			end
-		elseif self:getTile(self.w, j+1).id == Tile.id.ground and self:getTile(self.w, j).id == Tile.id.sky and self:getTile(self.w, j-3).id == Tile.id.sky then
+		elseif self:getTile(self.w, j+1).id == Tile.id.ground and self:getTile(self.w, j).id == Tile.id.sky and self:getTile(self.w, j-3).id == Tile.id.sky and j > 9 then
 			rand = math.floor(math.random()*3)
 			if rand < 2 then
 				self:setTile(self.w, j, Tile.new(Tile.id.ground))
@@ -124,11 +126,11 @@ function Level_mt:generate()
 
 	for i=1, self.w do
 		for j=1, self.h do
-			if self:getTile(i, j-1).id == Tile.id.ground and self:getTile(i, j).id == Tile.id.sky then
+			if self:getTile(i, j-1).id == Tile.id.ground and self:getTile(i, j).id == Tile.id.sky and self:getTile(i, j+1).id == Tile.id.sky then
 				if self:getTile(i-1, j-1).id == Tile.id.sky and self:getTile(i+1, j-1).id == Tile.id.sky then
 					self:setTile(i, j, Tile.new(Tile.id.grass))
 				end
-			elseif self:getTile(i, j+1).id == Tile.id.ground and self:getTile(i, j).id == Tile.id.sky then
+			elseif self:getTile(i, j+1).id == Tile.id.ground and self:getTile(i, j).id == Tile.id.sky and self:getTile(i, j-1).id == Tile.id.sky then
 				if self:getTile(i-1, j+1).id == Tile.id.sky and self:getTile(i+1, j+1).id == Tile.id.sky then
 					self:setTile(i, j, Tile.new(Tile.id.grass))
 				end
@@ -184,17 +186,31 @@ function Level_mt:findCollision(x, y)
 	return false
 end
 
-function Level_mt:placeFlag()
-	for j = self.h, 1, -1 do
-		if self:getTile(self.w, j).id == Tile.id.sky then
-			self:setTile(self.w, j, Tile.new(Tile.id.flag))
+function Level_mt:placeEnnemy(enemy)
+	local tries = 10
+	while tries > 0 do
+		local rand = math.floor(math.random()*self.h)
+		if self:getTile(self.w, rand).id == Tile.id.sky then
+			enemy.x = self.w
+			enemy.y = rand
 			return
+		else
+			tries = tries - 1
 		end
 	end
 end
 function Level_mt:placePlayer(player)
-	player.x = 1
-	player.y = self.h / 2
+	player.x = 5
+	local tries = 10
+	while tries > 0 do
+		local rand = math.floor(math.random()*self.h)
+		if self:getTile(player.x, rand).id == Tile.id.sky then
+			player.y = rand
+			return
+		else
+			tries = tries - 1
+		end
+	end
 end
 
 function Level_mt:setTile(x, y, tile)
