@@ -35,6 +35,7 @@ function love.update(dt)
 			end
 
 			if (players[i].joystick:isGamepadDown('a') ) then
+				players[i].fire.play()
 				_B = Bullet.new(players[i].x + 1 , players[i].y + 0.5, players[i])
 				_B.img = love.graphics.newImage("images/bullet.png")
 				table.insert(bullets, _B)
@@ -198,6 +199,7 @@ function love.joystickpressed(joystick, button )
 	if not findPlayer(joystick) then
 		local _P = Player.new(joystick)
 		_P.img = love.graphics.newImage("images/gaplus.png")
+		_P.fire = love.sound.newSoundData("fire.mp3")
 		_L:placePlayer(_P)
 		table.insert(players, _P)
 	end
